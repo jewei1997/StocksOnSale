@@ -126,3 +126,7 @@ STATIC_URL = '/static/'
 # CORS
 
 CORS_ORIGIN_ALLOW_ALL = True
+
+# FOR DEPLOYING
+PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
+STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
