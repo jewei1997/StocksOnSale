@@ -1,26 +1,50 @@
 import React from 'react';
-import logo from './logo.svg';
 import './App.css';
+import { Table } from 'react-bootstrap';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+class App extends React.Component {
+
+  constructor(props) {
+    super(props);
+    this.state = {
+      tickers: [],
+      pe_ratios: [],
+    }
+  }
+
+  async componentDidMount() {
+    const response = await fetch(`http://127.0.0.1:8000/stocks/pe_ratios/`);
+    const json = await response.json();
+    this.setState({tickers: json["tickers"], pe_ratios: json["pe_ratios"]})
+  }
+
+  render() {
+    const len = this.state.tickers.length
+    return (
+        <Table striped bordered hover variant="dark">
+          <thead>
+          <tr>
+            <th>Ticker</th>
+            <th>PE Ratio</th>
+          </tr>
+          </thead>
+          <tbody>
+          {Array.from({length: len}).map((_, index) => {
+            const ticker = this.state.tickers[index];
+            const pe_ratio = this.state.pe_ratios[index];
+            return (
+                <tr>
+                  <td key={index}><a
+                      href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a>
+                  </td>
+                  <td key={len + index}>{pe_ratio}</td>
+                </tr>
+            )
+          })}
+          </tbody>
+        </Table>
+    )
+  }
 }
 
 export default App;
