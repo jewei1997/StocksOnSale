@@ -1,2 +1,2 @@
 release: python manage.py migrate
-web: gunicorn stocks-on-sale.wsgi --log-file -
+web: gunicorn stocks_on_sale.wsgi --log-file -
