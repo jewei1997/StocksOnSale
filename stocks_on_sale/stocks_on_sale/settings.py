@@ -25,7 +25,7 @@ SECRET_KEY = '%xh3&%i3b!(vqm-jiap@tjx&ou$np_wk-%@+!c6!errv!alpf&'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['stocks-on-sale.herokuapp.com', '127.0.0.1:8000']
 
 
 # Application definition
@@ -128,5 +128,5 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 
 # FOR DEPLOYING
-PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
-STATIC_ROOT = os.path.join(PROJECT_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_STORAGE = 'whitenoise.django.GzipManifestStaticFilesStorage'
