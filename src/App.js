@@ -13,7 +13,7 @@ class App extends React.Component {
   }
 
   async componentDidMount() {
-    const response = await fetch(`stocks-on-sale.herokuapp.com/stocks/pe_ratios/`);
+    const response = await fetch(`/stocks/pe_ratios/`);
     const json = await response.json();
     this.setState({tickers: json["tickers"], pe_ratios: json["pe_ratios"]})
   }
