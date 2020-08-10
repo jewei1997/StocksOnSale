@@ -58,7 +58,7 @@ ROOT_URLCONF = 'stocks_on_sale.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -128,5 +128,8 @@ STATIC_URL = '/static/'
 CORS_ORIGIN_ALLOW_ALL = True
 
 # FOR DEPLOYING
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+REACT_APP_DIR = BASE_DIR
+STATICFILES_DIRS = (
+    os.path.join(REACT_APP_DIR, "build", "static"),  # update the STATICFILES_DIRS
+)
