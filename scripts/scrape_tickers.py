@@ -1,6 +1,6 @@
 from stocks.models import Stock
 
-with open("SnP500.txt", 'r') as reader:
+with open("scripts/SnP500.txt", 'r') as reader:
     line = reader.readline()	
     count = 0	
     while line != '':	
