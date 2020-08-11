@@ -27,9 +27,8 @@ class PeRatios(APIView):
         tickers = [stock.ticker for stock in stocks]
         pe_ratios = [(ticker, self.get_pe(ticker)) for ticker in tickers if self.get_pe(ticker)]
         sorted_by_pe = sorted(pe_ratios, key=lambda ticker_pe_tuple: ticker_pe_tuple[1])
-        sorted_ticker_pe_data = {"tickers": [ticker_pe_tuple[0] for ticker_pe_tuple in sorted_by_pe],
-                                 "pe_ratios": [ticker_pe_tuple[1] for ticker_pe_tuple in sorted_by_pe]}
-        return Response(sorted_ticker_pe_data)
+        data = [{"ticker": ticker, "pe_ratio": pe} for (ticker, pe) in sorted_by_pe]
+        return Response({"data": data})
 
 
 class FrontendAppView(View):
