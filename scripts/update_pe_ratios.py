@@ -21,8 +21,8 @@ def get_pe(ticker):
         return None
     try:
         pe = float(pe_span.contents[0].contents[0])
-    except:
-        print(f"{ticker} has pe ratio of NA")
+    except Exception as e:
+        print(f"{ticker} has pe ratio of NA, yhoo_finance_html = {yhoo_finance_html.content}")
         return None
     print(f"{count}: {ticker} - {pe}")
     return pe
