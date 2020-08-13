@@ -1,37 +1,13 @@
-import requests
-from bs4 import BeautifulSoup
-import time
 from stocks.models import Stock
+from scripts.financial_data import FinancialDataClient
 
-count = 0
-
-
-def get_pe(ticker):
-    global count
-    if count > 0 and count % 3 == 0:
-        print("Sleeping for 5 seconds")
-        time.sleep(5)
-    count += 1
-    yhoo_finance_html = requests.get('https://finance.yahoo.com/quote/' + ticker)
-    soup = BeautifulSoup(yhoo_finance_html.content)
-    try:
-        pe_span = soup.find_all("td", attrs={"data-test": "PE_RATIO-value"})[0]
-    except:
-        print(f"Unable to get pe ratio for {ticker}")
-        return None
-    try:
-        pe = float(pe_span.contents[0].contents[0])
-    except Exception as e:
-        print(f"{ticker} has pe ratio of NA, yhoo_finance_html = {yhoo_finance_html.content}")
-        return None
-    print(f"{count}: {ticker} - {pe}")
-    return pe
-
-
+client = FinancialDataClient()
 stocks = Stock.objects.all()
 tickers = [stock.ticker for stock in stocks]
-for ticker in tickers:
-    pe = get_pe(ticker)
+pe_ratios = client.get_pe_ratios(tickers)
+for i in range(len(pe_ratios)):
+    ticker = tickers[i]
+    pe = pe_ratios[i]
     # save new pe into db
     if not pe:
         continue
