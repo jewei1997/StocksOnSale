@@ -37,10 +37,7 @@ class FinancialDataClient:
         pe_ratios = []
         resp = self._get_quotes(tickers)
         for ticker in tickers:
-            try:
-                pe = resp[ticker]["quote"]["peRatio"]
-            except:
-                pe = None
+            pe = resp[ticker]["quote"]["peRatio"]
             pe_ratios.append(pe)
         return pe_ratios
 
