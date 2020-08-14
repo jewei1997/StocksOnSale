@@ -1,6 +1,11 @@
 import requests
 
 
+class FinInfo:
+    PE_RATIO = 1
+    MARKET_CAP = 2
+
+
 class FinancialDataClient:
 
     IEX_CLOUD_API_KEY = 'pk_f73bd1961cb24068b2e354b45d1e5ac8'
@@ -33,11 +38,13 @@ class FinancialDataClient:
     def _get_quotes(self, tickers):
         return self._make_api_call_with_batching(tickers, ["quote"])
 
-    def get_pe_ratios(self, tickers):
-        pe_ratios = []
+    def get_info(self, tickers, financial_info_list):
+        results = []
         resp = self._get_quotes(tickers)
-        for ticker in tickers:
-            pe = resp[ticker]["quote"]["peRatio"]
-            pe_ratios.append(pe)
-        return pe_ratios
-
+        if FinInfo.PE_RATIO in financial_info_list:
+            pe_ratios = [resp[ticker]["quote"]["peRatio"] for ticker in tickers]
+            results.append(pe_ratios)
+        if FinInfo.MARKET_CAP in financial_info_list:
+            market_caps = [resp[ticker]["quote"]["marketCap"] for ticker in tickers]
+            results.append(market_caps)
+        return results
