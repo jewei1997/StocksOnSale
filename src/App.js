@@ -7,42 +7,67 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      pe_ratios: [],
-      market_caps: [],
+      // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1},
+      //         {"ticker": t2, "pe_ratio": pe2, "market_cap": mc2}, ...]
+      data: [],
       is_ascending: true,
     }
+  }
+
+  // TODO: move this to a helpers file
+  // Convert an array structured like [{"ticker": t1, "key": val1}, {"ticker": t2, "key": val2}, ...]
+  // to a dict like: {t1: val1, t2: val2, ...}
+  arrayToDict(arr, key) {
+    let tickerToVal = {}
+    for (let i = 0; i < arr.length; i++) {
+      const stock = arr[i]
+      tickerToVal[stock["ticker"]] = stock[key]
+    }
+    return tickerToVal
   }
 
   async componentDidMount() {
     const pe_resp = await fetch(`/stocks/pe_ratios/`)
     const pe_json = await pe_resp.json()
-    this.setState({pe_ratios: pe_json["data"]})
     const mc_resp = await fetch(`stocks/market_caps/`)
     const mc_json = await mc_resp.json()
-    this.setState({market_caps: mc_json["data"]})
+
+    const tickerToPe = this.arrayToDict(pe_json.data, "pe_ratio")
+    const tickerToMarketCap = this.arrayToDict(mc_json.data, "market_cap")
+
+    // build data that looks like:
+    // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1},
+    //         {"ticker": t2, "pe_ratio": pe2, "market_cap": mc2}, ...]
+    let data = []
+    for (const ticker in tickerToPe) {
+      let pe_ratio = tickerToPe[ticker]
+      let market_cap = tickerToMarketCap[ticker]
+      let data_element = {"ticker": ticker, "pe_ratio": pe_ratio, "market_cap": market_cap}
+      data.push(data_element)
+    }
+
+    // set data to this.state.data
+    this.setState({data: data})
   }
 
   onSort(event, sortKey) {
-    const data = this.state.pe_ratios
+    const data = this.state.data
     data.sort((a,b) => {
-      let result = -1;
+      let result
       if (typeof(a[sortKey]) === "number") {
         result = a[sortKey] - b[sortKey]
       } else {
         result = a[sortKey].localeCompare(b[sortKey])
       }
-      if (this.state.is_ascending) {
-        return result
-      } else {
-        return -1 * result
-      }
+      if (this.state.is_ascending) { return result }
+      return -result
     })
     this.state.is_ascending = !this.state.is_ascending
     this.setState({data: data})
   }
 
   render() {
-    const len = (this.state.pe_ratios === undefined ? 0 : this.state.pe_ratios.length)
+    const len = (this.state.data === undefined ? 0 : this.state.data.length)
     return (
         <Table striped bordered hover variant="dark">
           <thead>
@@ -54,9 +79,10 @@ class App extends React.Component {
           </thead>
           <tbody>
           {Array.from({length: len}).map((_, index) => {
-            const ticker = this.state.pe_ratios[index]["ticker"];
-            const pe_ratio = this.state.pe_ratios[index] === undefined ? "unavailable" : this.state.pe_ratios[index]["pe_ratio"];
-            const market_cap = this.state.market_caps[index] === undefined ? "unavailable" : this.state.market_caps[index]["market_cap"]
+            const stock_data_ele = this.state.data[index]
+            const ticker = stock_data_ele["ticker"]
+            const pe_ratio = stock_data_ele["pe_ratio"]
+            const market_cap = stock_data_ele["market_cap"]
             return (
                 <tr>
                   <td key={index}><a href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a></td>
