@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.css';
 import { Table } from 'react-bootstrap';
+import {arrayToDict, numFormatter} from "./Helpers";
 
 class App extends React.Component {
 
@@ -14,26 +15,14 @@ class App extends React.Component {
     }
   }
 
-  // TODO: move this to a helpers file
-  // Convert an array structured like [{"ticker": t1, "key": val1}, {"ticker": t2, "key": val2}, ...]
-  // to a dict like: {t1: val1, t2: val2, ...}
-  arrayToDict(arr, key) {
-    let tickerToVal = {}
-    for (let i = 0; i < arr.length; i++) {
-      const stock = arr[i]
-      tickerToVal[stock["ticker"]] = stock[key]
-    }
-    return tickerToVal
-  }
-
   async componentDidMount() {
     const pe_resp = await fetch(`/stocks/pe_ratios/`)
     const pe_json = await pe_resp.json()
     const mc_resp = await fetch(`stocks/market_caps/`)
     const mc_json = await mc_resp.json()
 
-    const tickerToPe = this.arrayToDict(pe_json.data, "pe_ratio")
-    const tickerToMarketCap = this.arrayToDict(mc_json.data, "market_cap")
+    const tickerToPe = arrayToDict(pe_json.data, "pe_ratio")
+    const tickerToMarketCap = arrayToDict(mc_json.data, "market_cap")
 
     // build data that looks like:
     // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1},
@@ -66,20 +55,6 @@ class App extends React.Component {
     this.setState({data: data})
   }
 
-  numFormatter(num) {
-    if (num < 999) {
-      return num
-    } else if (999 < num && num < Math.pow(10,6)) {
-      return (num/1000).toFixed(2) + 'K'; // convert to K for number from > 1000
-    } else if (Math.pow(10, 6) <= num && num < Math.pow(10, 9)) {
-      return (num/Math.pow(10, 6)).toFixed(2) + 'M'; // convert to M for number from > 1 million
-    } else if (Math.pow(10, 9) <= num && num < Math.pow(10, 12)) {
-      return (num/Math.pow(10, 9)).toFixed(2) + 'B'; // convert to B for number from > 1 billion
-    } else if (Math.pow(10, 12) <= num && num < Math.pow(10, 15)) {
-      return (num/Math.pow(10, 12)).toFixed(2) + 'T'; // convert to T for number from > 1 trillion
-    }
-  }
-
   render() {
     const len = (this.state.data === undefined ? 0 : this.state.data.length)
     return (
@@ -96,7 +71,7 @@ class App extends React.Component {
             const stock_data_ele = this.state.data[index]
             const ticker = stock_data_ele["ticker"]
             const pe_ratio = stock_data_ele["pe_ratio"]
-            const market_cap = this.numFormatter(stock_data_ele["market_cap"])
+            const market_cap = numFormatter(stock_data_ele["market_cap"])
             return (
                 <tr>
                   <td key={index}><a href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a></td>
