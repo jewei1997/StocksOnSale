@@ -66,6 +66,20 @@ class App extends React.Component {
     this.setState({data: data})
   }
 
+  numFormatter(num) {
+    if (num < 999) {
+      return num
+    } else if (999 < num && num < Math.pow(10,6)) {
+      return (num/1000).toFixed(2) + 'K'; // convert to K for number from > 1000
+    } else if (Math.pow(10, 6) <= num && num < Math.pow(10, 9)) {
+      return (num/Math.pow(10, 6)).toFixed(2) + 'M'; // convert to M for number from > 1 million
+    } else if (Math.pow(10, 9) <= num && num < Math.pow(10, 12)) {
+      return (num/Math.pow(10, 9)).toFixed(2) + 'B'; // convert to B for number from > 1 billion
+    } else if (Math.pow(10, 12) <= num && num < Math.pow(10, 15)) {
+      return (num/Math.pow(10, 12)).toFixed(2) + 'T'; // convert to T for number from > 1 trillion
+    }
+  }
+
   render() {
     const len = (this.state.data === undefined ? 0 : this.state.data.length)
     return (
@@ -82,7 +96,7 @@ class App extends React.Component {
             const stock_data_ele = this.state.data[index]
             const ticker = stock_data_ele["ticker"]
             const pe_ratio = stock_data_ele["pe_ratio"]
-            const market_cap = stock_data_ele["market_cap"]
+            const market_cap = this.numFormatter(stock_data_ele["market_cap"])
             return (
                 <tr>
                   <td key={index}><a href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a></td>
