@@ -1,7 +1,9 @@
 import requests
 import datetime
 from datetime import date
+import logging
 
+logger = logging.getLogger(__name__)
 
 class FinancialDataClient:
 
@@ -33,7 +35,7 @@ class FinancialDataClient:
         past_prices = self._extract_closing_prices_from_api_response(resp_past_date)
         current_prices = self._extract_closing_prices_from_api_response(resp_today)
 
-        return self._calculate_percentage_changes(past_prices, current_prices)
+        return self._calculate_percentage_changes(tickers, past_prices, current_prices)
 
     ############################################################
     ############## API endpoint handlers #######################
@@ -119,12 +121,13 @@ class FinancialDataClient:
             prices.append(stock_dict["uClose"])
         return prices
 
-    def _calculate_percentage_changes(self, past_prices, current_prices):
-        assert(len(past_prices) == len(current_prices))
+    def _calculate_percentage_changes(self, tickers, past_prices, current_prices):
+        assert(len(tickers) == len(past_prices) == len(current_prices))
         percentage_changes = []
         for i in range(len(past_prices)):
             if not past_prices[i] or not current_prices[i]:
-                percentage_changes.append(0)
+                logger.warning(f"No percentage change retrieved for ticker {ticker}")
+                percentage_changes.append(float('nan'))  # when unable to get value
                 continue
             percentage_changes.append((current_prices[i] - past_prices[i])/past_prices[i])
         return percentage_changes
