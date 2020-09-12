@@ -1,9 +1,14 @@
 import requests
+import datetime
+from datetime import date
 
 
 class FinInfo:
     PE_RATIO = 1
     MARKET_CAP = 2
+    ONE_WEEK_CHANGE = 3
+    ONE_MONTH_CHANGE = 4
+    ONE_YEAR_CHANGE = 5
 
 
 class FinancialDataClient:
@@ -14,37 +19,141 @@ class FinancialDataClient:
     def __init__(self):
         pass
 
-    def _make_api_call_without_batching(self, tickers, requested_data):
-        assert(len(tickers) <= self.BATCH_LIMIT and len(requested_data) <= self.BATCH_LIMIT)
-        if not tickers or not requested_data:
-            return {}
-        api_call = 'https://cloud.iexapis.com/stable/stock/market/batch?symbols='
-        api_call += ','.join(tickers)
-        api_call += '&types='
-        api_call += ','.join(requested_data)
-        api_call += f'&token={self.IEX_CLOUD_API_KEY}'
-        return requests.get(api_call).json()
-
-    def _make_api_call_with_batching(self, tickers, requested_data):
+    def _get_api_quotes_endpoint(self, tickers):
         ticker_index = 0
         response = {}
         while ticker_index < len(tickers):
             ticker_batch = tickers[ticker_index: ticker_index + self.BATCH_LIMIT]
-            api_result = self._make_api_call_without_batching(ticker_batch, requested_data)
+            api_result = self._get_api_quotes_endpoint_helper(ticker_batch)
             response.update(api_result)
             ticker_index += self.BATCH_LIMIT
         return response
 
-    def _get_quotes(self, tickers):
-        return self._make_api_call_with_batching(tickers, ["quote"])
+    def _get_api_quotes_endpoint_helper(self, tickers):
+        # example call: https://cloud.iexapis.com/stable/stock/aapl/batch?types=quote&token=pk_f73bd1961cb24068b2e354b45d1e5ac8
+        assert(len(tickers) <= self.BATCH_LIMIT)
+        if not tickers:
+            return {}
 
+        # build api call and make get request
+        api_call = 'https://cloud.iexapis.com/stable/stock/market/batch?symbols='
+        api_call += ','.join(tickers)
+        api_call += '&types='
+        api_call += 'quote'
+        api_call += f'&token={self.IEX_CLOUD_API_KEY}'
+        return requests.get(api_call).json()
+
+    def _get_historial_prices_endpoint(self, tickers, _date):
+        ticker_index = 0
+        response = []
+        while ticker_index < len(tickers):
+            ticker_batch = tickers[ticker_index: ticker_index + self.BATCH_LIMIT]
+            api_result = self._get_historial_prices_endpoint_helper(ticker_batch, _date)
+            response.extend(api_result)
+            ticker_index += self.BATCH_LIMIT
+        return response
+
+    def _get_historial_prices_endpoint_helper(self, tickers, _date):
+        # example call: https://cloud.iexapis.com/stable/stock/market/chart/date/20200820?symbols=tsla,aapl&chartByDay=true&token=pk_f73bd1961cb24068b2e354b45d1e5ac8
+        assert(len(tickers) <= self.BATCH_LIMIT)
+        if not tickers:
+            return {}
+
+        # convert datetime object to correctly formatted string
+        splitted_date = str(_date).split('-')
+        date_no_spaces = ''.join(splitted_date)
+
+        # build api call and make get request
+        api_call = 'https://cloud.iexapis.com/stable/stock/market/chart/date/'
+        api_call += date_no_spaces
+        api_call += '?symbols='
+        api_call += ','.join(tickers)
+        api_call += '&chartByDay=true'
+        api_call += f'&token={self.IEX_CLOUD_API_KEY}'
+        return requests.get(api_call).json()
+
+    def _get_pe_ratios(self, tickers):
+        resp = self._get_api_quotes_endpoint(tickers)
+        return [resp[ticker]["quote"]["peRatio"] for ticker in tickers]
+
+    def _get_market_caps(self, tickers):
+        resp = self._get_api_quotes_endpoint(tickers)
+        return [resp[ticker]["quote"]["marketCap"] for ticker in tickers]
+
+    # TODO: move functions like these to a helpers file.
+    def _adjust_date(self, _date):
+        """
+        Adjust the date to the nearest date in the past that has data. For example, if the stock market hasn't
+        opened yet on the date, adjust to the day before. If it is a weekend, adjust to the nearest Friday.
+        """
+        if _date == date.today():
+            _date = _date - datetime.timedelta(days=1)
+        if _date.weekday() == 5:  # saturday
+            _date = _date - datetime.timedelta(days=1)
+        if _date.weekday() == 6:
+            _date = _date - datetime.timedelta(days=2)
+        return _date
+
+    def _extract_closing_prices_from_api_response(self, resp):
+        prices = []
+        for stock_arr in resp:
+            if len(stock_arr) == 0:
+                prices.append(0)
+                continue
+            stock_dict = stock_arr[0]
+            prices.append(stock_dict["uClose"])
+        return prices
+
+    def _calculate_percentage_changes(self, past_prices, current_prices):
+        assert(len(past_prices) == len(current_prices))
+        percentage_changes = []
+        for i in range(len(past_prices)):
+            if not past_prices[i] or not current_prices[i]:
+                percentage_changes.append(0)
+                continue
+            percentage_changes.append((current_prices[i] - past_prices[i])/past_prices[i])
+        return percentage_changes
+
+    def _get_period_change(self, tickers, day_diff):
+        adjusted_date_today = self._adjust_date(date.today())
+        adjusted_past_date = self._adjust_date(date.today() - datetime.timedelta(days=day_diff))
+
+        resp_past_date = self._get_historial_prices_endpoint(tickers, adjusted_past_date)
+        resp_today = self._get_historial_prices_endpoint(tickers, adjusted_date_today)
+
+        past_prices = self._extract_closing_prices_from_api_response(resp_past_date)
+        current_prices = self._extract_closing_prices_from_api_response(resp_today)
+
+        return self._calculate_percentage_changes(past_prices, current_prices)
+
+    def _get_one_week_change(self, tickers):
+        return self._get_period_change(tickers, 7)
+
+    def _get_one_month_change(self, tickers):
+        return self._get_period_change(tickers, 30)
+
+    def _get_one_year_change(self, tickers):
+        return self._get_period_change(tickers, 365)
+
+    # TODO: since we aren't actually minimizing calls, let's just get rid of this function
+    # and just have the helper functions that are called be on the outside
     def get_info(self, tickers, financial_info_list):
+        """
+        Master function. Request what tickers you want data for and what financial stats you want for them. This
+        function should return all the requested data while minimizing the number of API requests made. The primary
+        reason for not splitting this function into individual functions for retrieving each stat is to minimize
+        the number of api calls made.
+        """
         results = []
-        resp = self._get_quotes(tickers)
-        if FinInfo.PE_RATIO in financial_info_list:
-            pe_ratios = [resp[ticker]["quote"]["peRatio"] for ticker in tickers]
-            results.append(pe_ratios)
-        if FinInfo.MARKET_CAP in financial_info_list:
-            market_caps = [resp[ticker]["quote"]["marketCap"] for ticker in tickers]
-            results.append(market_caps)
+        for financial_stat in financial_info_list:
+            if financial_stat == FinInfo.PE_RATIO:
+                results.append(self._get_pe_ratios(tickers))
+            elif financial_stat == FinInfo.MARKET_CAP:
+                results.append(self._get_market_caps(tickers))
+            elif financial_stat == FinInfo.ONE_WEEK_CHANGE:
+                results.append(self._get_one_week_change(tickers))
+            elif financial_stat == FinInfo.ONE_MONTH_CHANGE:
+                results.append(self._get_one_month_change(tickers))
+            elif financial_stat == FinInfo.ONE_YEAR_CHANGE:
+                results.append(self._get_one_year_change(tickers))
         return results
