@@ -3,14 +3,6 @@ import datetime
 from datetime import date
 
 
-class FinInfo:
-    PE_RATIO = 1
-    MARKET_CAP = 2
-    ONE_WEEK_CHANGE = 3
-    ONE_MONTH_CHANGE = 4
-    ONE_YEAR_CHANGE = 5
-
-
 class FinancialDataClient:
 
     IEX_CLOUD_API_KEY = 'pk_f73bd1961cb24068b2e354b45d1e5ac8'
@@ -18,6 +10,34 @@ class FinancialDataClient:
 
     def __init__(self):
         pass
+
+    ############################################################
+    ############## Financial stat getters ######################
+    ############################################################
+
+    def get_pe_ratios(self, tickers):
+        resp = self._get_api_quotes_endpoint(tickers)
+        return [resp[ticker]["quote"]["peRatio"] for ticker in tickers]
+
+    def get_market_caps(self, tickers):
+        resp = self._get_api_quotes_endpoint(tickers)
+        return [resp[ticker]["quote"]["marketCap"] for ticker in tickers]
+
+    def get_price_percentage_change_from_today(self, tickers, day_diff):
+        adjusted_date_today = self._adjust_date(date.today())
+        adjusted_past_date = self._adjust_date(date.today() - datetime.timedelta(days=day_diff))
+
+        resp_past_date = self._get_historial_prices_endpoint(tickers, adjusted_past_date)
+        resp_today = self._get_historial_prices_endpoint(tickers, adjusted_date_today)
+
+        past_prices = self._extract_closing_prices_from_api_response(resp_past_date)
+        current_prices = self._extract_closing_prices_from_api_response(resp_today)
+
+        return self._calculate_percentage_changes(past_prices, current_prices)
+
+    ############################################################
+    ############## API endpoint handlers #######################
+    ############################################################
 
     def _get_api_quotes_endpoint(self, tickers):
         ticker_index = 0
@@ -72,15 +92,10 @@ class FinancialDataClient:
         api_call += f'&token={self.IEX_CLOUD_API_KEY}'
         return requests.get(api_call).json()
 
-    def _get_pe_ratios(self, tickers):
-        resp = self._get_api_quotes_endpoint(tickers)
-        return [resp[ticker]["quote"]["peRatio"] for ticker in tickers]
+    ############################################################
+    ############## helper functions ############################
+    ############################################################
 
-    def _get_market_caps(self, tickers):
-        resp = self._get_api_quotes_endpoint(tickers)
-        return [resp[ticker]["quote"]["marketCap"] for ticker in tickers]
-
-    # TODO: move functions like these to a helpers file.
     def _adjust_date(self, _date):
         """
         Adjust the date to the nearest date in the past that has data. For example, if the stock market hasn't
@@ -114,46 +129,3 @@ class FinancialDataClient:
             percentage_changes.append((current_prices[i] - past_prices[i])/past_prices[i])
         return percentage_changes
 
-    def _get_period_change(self, tickers, day_diff):
-        adjusted_date_today = self._adjust_date(date.today())
-        adjusted_past_date = self._adjust_date(date.today() - datetime.timedelta(days=day_diff))
-
-        resp_past_date = self._get_historial_prices_endpoint(tickers, adjusted_past_date)
-        resp_today = self._get_historial_prices_endpoint(tickers, adjusted_date_today)
-
-        past_prices = self._extract_closing_prices_from_api_response(resp_past_date)
-        current_prices = self._extract_closing_prices_from_api_response(resp_today)
-
-        return self._calculate_percentage_changes(past_prices, current_prices)
-
-    def _get_one_week_change(self, tickers):
-        return self._get_period_change(tickers, 7)
-
-    def _get_one_month_change(self, tickers):
-        return self._get_period_change(tickers, 30)
-
-    def _get_one_year_change(self, tickers):
-        return self._get_period_change(tickers, 365)
-
-    # TODO: since we aren't actually minimizing calls, let's just get rid of this function
-    # and just have the helper functions that are called be on the outside
-    def get_info(self, tickers, financial_info_list):
-        """
-        Master function. Request what tickers you want data for and what financial stats you want for them. This
-        function should return all the requested data while minimizing the number of API requests made. The primary
-        reason for not splitting this function into individual functions for retrieving each stat is to minimize
-        the number of api calls made.
-        """
-        results = []
-        for financial_stat in financial_info_list:
-            if financial_stat == FinInfo.PE_RATIO:
-                results.append(self._get_pe_ratios(tickers))
-            elif financial_stat == FinInfo.MARKET_CAP:
-                results.append(self._get_market_caps(tickers))
-            elif financial_stat == FinInfo.ONE_WEEK_CHANGE:
-                results.append(self._get_one_week_change(tickers))
-            elif financial_stat == FinInfo.ONE_MONTH_CHANGE:
-                results.append(self._get_one_month_change(tickers))
-            elif financial_stat == FinInfo.ONE_YEAR_CHANGE:
-                results.append(self._get_one_year_change(tickers))
-        return results
