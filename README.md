@@ -18,3 +18,4 @@ Has been succesfully deployed to: https://stocks-on-sale.herokuapp.com/
 ## Development
  - run `python manage.py runserver` to start the app locally
  - if you make changes to the frontend, make sure to run `npm run build` first. 
+ - To update financial data in db, look at instructions in update\_financial\_data.py
