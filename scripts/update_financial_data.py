@@ -6,7 +6,7 @@ from scripts.financial_data import FinancialDataClient
 """
 To run:
 python manage.py shell
-> exec(open("scripts/update_pe_ratios.py").read())
+> exec(open("scripts/update_financial_data.py").read())
 
 Tip:
 When testing, change tickers = ["TSLA", "AMZN"]
