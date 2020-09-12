@@ -8,8 +8,10 @@ class App extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1},
-      //         {"ticker": t2, "pe_ratio": pe2, "market_cap": mc2}, ...]
+      // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1, ...},
+      //         {"ticker": t2, "pe_ratio": pe2, "market_cap": mc2, ...},
+      //         ...
+      //        ]
       data: [],
       is_ascending: true,
     }
@@ -20,18 +22,34 @@ class App extends React.Component {
     const pe_json = await pe_resp.json()
     const mc_resp = await fetch(`stocks/market_caps/`)
     const mc_json = await mc_resp.json()
+    const pc_week_resp = await fetch(`stocks/percentage_change/7/`)
+    const pc_week_json = await pc_week_resp.json()
+    const pc_month_resp = await fetch(`stocks/percentage_change/30/`)
+    const pc_month_json = await pc_month_resp.json()
+    const pc_year_resp = await fetch(`stocks/percentage_change/365/`)
+    const pc_year_json = await pc_year_resp.json()
 
     const tickerToPe = arrayToDict(pe_json.data, "pe_ratio")
     const tickerToMarketCap = arrayToDict(mc_json.data, "market_cap")
+    const tickerToWeekPercentageChange = arrayToDict(pc_week_json.data, "percentage_change")
+    const tickerToMonthPercentageChange = arrayToDict(pc_month_json.data, "percentage_change")
+    const tickerToYearPercentageChange = arrayToDict(pc_year_json.data, "percentage_change")
 
-    // build data that looks like:
-    // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1},
-    //         {"ticker": t2, "pe_ratio": pe2, "market_cap": mc2}, ...]
+
+    // build data so that it looks like:
+    // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1, ...},
+    //         {"ticker": t2, "pe_ratio": pe2, "market_cap": mc2, ...},
+    //         ...
+    //        ]
     let data = []
     for (const ticker in tickerToPe) {
-      let pe_ratio = tickerToPe[ticker]
-      let market_cap = tickerToMarketCap[ticker]
-      let data_element = {"ticker": ticker, "pe_ratio": pe_ratio, "market_cap": market_cap}
+      let data_element = {"ticker": ticker,
+                          "pe_ratio": tickerToPe[ticker],
+                          "market_cap": tickerToMarketCap[ticker],
+                          "week_percentage_change": tickerToWeekPercentageChange[ticker],
+                          "month_percentage_change": tickerToMonthPercentageChange[ticker],
+                          "year_percentage_change": tickerToYearPercentageChange[ticker],
+      }
       data.push(data_element)
     }
 
@@ -40,10 +58,15 @@ class App extends React.Component {
   }
 
   onSort(event, sortKey) {
+    console.log("onSort called on sortKey = ", sortKey)
     const data = this.state.data
     data.sort((a,b) => {
       let result
-      if (typeof(a[sortKey]) === "number") {
+      if (a[sortKey] === undefined) {
+        result = -1 // put b[sortKey] first
+      } else if (b[sortKey] === undefined) {
+        result = 1 // put a[sortKey] first
+      } else if (typeof(a[sortKey]) === "number" && typeof(b[sortKey]) === "number") {
         result = a[sortKey] - b[sortKey]
       } else {
         result = a[sortKey].localeCompare(b[sortKey])
@@ -61,9 +84,13 @@ class App extends React.Component {
         <Table striped bordered hover variant="dark">
           <thead>
           <tr>
+            {/*TODO: can sort by ticker as well!*/}
             <th>Ticker</th>
             <th onClick={e => this.onSort(e, "pe_ratio")}>PE Ratio</th>
             <th onClick={e => this.onSort(e, "market_cap")}>Market Cap</th>
+            <th onClick={e => this.onSort(e, "week_percentage_change")}>Week Percent Change</th>
+            <th onClick={e => this.onSort(e, "month_percentage_change")}>Month Percent Change</th>
+            <th onClick={e => this.onSort(e, "year_percentage_change")}>Year Percent Change</th>
           </tr>
           </thead>
           <tbody>
@@ -72,11 +99,17 @@ class App extends React.Component {
             const ticker = stock_data_ele["ticker"]
             const pe_ratio = stock_data_ele["pe_ratio"]
             const market_cap = numFormatter(stock_data_ele["market_cap"])
+            const week_percentage_change = stock_data_ele["week_percentage_change"]
+            const month_percentage_change = stock_data_ele["month_percentage_change"]
+            const year_percentage_change = stock_data_ele["year_percentage_change"]
             return (
                 <tr>
                   <td key={index}><a href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a></td>
                   <td key={len + index}>{pe_ratio}</td>
                   <td key={2*len + index}>{market_cap}</td>
+                  <td key={3*len + index}>{week_percentage_change}</td>
+                  <td key={4*len + index}>{month_percentage_change}</td>
+                  <td key={5*len + index}>{year_percentage_change}</td>
                 </tr>
             )
           })}
