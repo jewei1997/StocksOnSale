@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import { Table } from 'react-bootstrap';
-import {arrayToDict, numFormatter} from "./Helpers";
+import {arrayToDict, numFormatter, percentFormatter} from "./Helpers";
 
 class App extends React.Component {
 
@@ -58,7 +58,6 @@ class App extends React.Component {
   }
 
   onSort(event, sortKey) {
-    console.log("onSort called on sortKey = ", sortKey)
     const data = this.state.data
     data.sort((a,b) => {
       let result
@@ -88,9 +87,9 @@ class App extends React.Component {
             <th>Ticker</th>
             <th onClick={e => this.onSort(e, "pe_ratio")}>PE Ratio</th>
             <th onClick={e => this.onSort(e, "market_cap")}>Market Cap</th>
-            <th onClick={e => this.onSort(e, "week_percentage_change")}>Week Percent Change</th>
-            <th onClick={e => this.onSort(e, "month_percentage_change")}>Month Percent Change</th>
-            <th onClick={e => this.onSort(e, "year_percentage_change")}>Year Percent Change</th>
+            <th onClick={e => this.onSort(e, "week_percentage_change")}>1 Week</th>
+            <th onClick={e => this.onSort(e, "month_percentage_change")}>1 Month</th>
+            <th onClick={e => this.onSort(e, "year_percentage_change")}>1 Year</th>
           </tr>
           </thead>
           <tbody>
@@ -99,9 +98,9 @@ class App extends React.Component {
             const ticker = stock_data_ele["ticker"]
             const pe_ratio = stock_data_ele["pe_ratio"]
             const market_cap = numFormatter(stock_data_ele["market_cap"])
-            const week_percentage_change = stock_data_ele["week_percentage_change"]
-            const month_percentage_change = stock_data_ele["month_percentage_change"]
-            const year_percentage_change = stock_data_ele["year_percentage_change"]
+            const week_percentage_change = percentFormatter(stock_data_ele["week_percentage_change"])
+            const month_percentage_change = percentFormatter(stock_data_ele["month_percentage_change"])
+            const year_percentage_change = percentFormatter(stock_data_ele["year_percentage_change"])
             return (
                 <tr>
                   <td key={index}><a href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a></td>

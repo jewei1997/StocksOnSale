@@ -10,7 +10,9 @@ export function arrayToDict(arr, key) {
 }
 
 export function numFormatter(num) {
-  if (num < 999) {
+  if (num === undefined) {
+    return "N/A"
+  } else if (num < 999) {
     return num
   } else if (999 < num && num < Math.pow(10,6)) {
     return (num/1000).toFixed(2) + 'K'; // convert to K for number from > 1000
@@ -21,4 +23,11 @@ export function numFormatter(num) {
   } else if (Math.pow(10, 12) <= num && num < Math.pow(10, 15)) {
     return (num/Math.pow(10, 12)).toFixed(2) + 'T'; // convert to T for number from > 1 trillion
   }
+}
+
+export function percentFormatter(num) {
+  if (num === undefined) {
+    return "N/A"
+  }
+  return (num * 100).toFixed(2) + '%'
 }
