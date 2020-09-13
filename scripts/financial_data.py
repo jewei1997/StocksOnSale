@@ -126,7 +126,7 @@ class FinancialDataClient:
         percentage_changes = []
         for i in range(len(past_prices)):
             if not past_prices[i] or not current_prices[i]:
-                logger.warning(f"No percentage change retrieved for ticker {ticker}")
+                logger.warning(f"No percentage change retrieved for ticker {tickers[i]}")
                 percentage_changes.append(float('nan'))  # when unable to get value
                 continue
             percentage_changes.append((current_prices[i] - past_prices[i])/past_prices[i])
