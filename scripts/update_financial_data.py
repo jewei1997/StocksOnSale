@@ -1,8 +1,6 @@
 from stocks.models import Stock
 from scripts.financial_data import FinancialDataClient
 
-# TODO: update the name of this file and the "To run" comment below
-
 """
 To run:
 python manage.py shell
