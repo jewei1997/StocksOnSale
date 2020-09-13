@@ -27,7 +27,11 @@ class PeRatios(APIView):
     def get(self, request, format=None):
         stocks = Stock.objects.all()
         tickers = [stock.ticker for stock in stocks]
-        pe_ratios = [(ticker, self.get_pe(ticker)) for ticker in tickers if self.get_pe(ticker)]
+        pe_ratios = []
+        for ticker in tickers:
+            pe = self.get_pe(ticker)
+            if pe:
+                pe_ratios.append((ticker, pe))
         sorted_by_pe = sorted(pe_ratios, key=lambda ticker_pe_tuple: ticker_pe_tuple[1])
         data = [{"ticker": ticker, "pe_ratio": pe} for (ticker, pe) in sorted_by_pe]
         return Response({"data": data})
@@ -49,7 +53,11 @@ class MarketCaps(APIView):
     def get(self, request, format=None):
         stocks = Stock.objects.all()
         tickers = [stock.ticker for stock in stocks]
-        market_caps = [(ticker, self.get_market_cap(ticker)) for ticker in tickers if self.get_market_cap(ticker)]
+        market_caps = []
+        for ticker in tickers:
+            mc = self.get_market_cap(ticker)
+            if mc:
+                market_caps.append((ticker, mc))
         sorted_by_market_cap = sorted(market_caps, key=lambda ticker_mc_tuple: ticker_mc_tuple[1])
         data = [{"ticker": ticker, "market_cap": mc} for (ticker, mc) in sorted_by_market_cap]
         return Response({"data": data})
@@ -93,11 +101,11 @@ class PercentageChange(APIView):
         stocks = Stock.objects.all()
         tickers = [stock.ticker for stock in stocks]
         supported_period = self._convert_days_to_supported_period(days)
-        percentage_changes = [
-                                (ticker, self._get_percentage_change(ticker, supported_period))
-                                for ticker in tickers
-                                if self._get_percentage_change(ticker, supported_period)
-                             ]
+        percentage_changes = []
+        for ticker in tickers:
+            pc = self._get_percentage_change(ticker, supported_period)
+            if pc:
+                percentage_changes.append((ticker, pc))
         sorted_by_percentage_change = sorted(percentage_changes, key=lambda ticker_pc_tuple: ticker_pc_tuple[1])
         data = [{"ticker": ticker, "percentage_change": pc} for (ticker, pc) in sorted_by_percentage_change]
         return Response({"data": data})
