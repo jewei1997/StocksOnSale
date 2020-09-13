@@ -4,7 +4,7 @@ from django.db import models
 class Stock(models.Model):
     ticker = models.CharField(max_length=10, primary_key=True)
     pe_ratio = models.FloatField(blank=True, null=True)
-    market_cap = models.IntegerField()
+    market_cap = models.BigIntegerField()
     one_week_percentage_change = models.FloatField(blank=True, null=True)
     one_month_percentage_change = models.FloatField(blank=True, null=True)
     one_year_percentage_change = models.FloatField(blank=True, null=True)
