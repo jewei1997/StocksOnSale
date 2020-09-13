@@ -1,7 +1,11 @@
 import React from 'react';
 import './App.css';
-import { Table } from 'react-bootstrap';
+import Table from 'react-bootstrap/Table';
 import {arrayToDict, numFormatter, percentFormatter} from "./Helpers";
+import { FaSort } from "react-icons/fa";
+
+import 'bootstrap/dist/css/bootstrap.min.css';
+
 
 class App extends React.Component {
 
@@ -81,15 +85,21 @@ class App extends React.Component {
     const len = (this.state.data === undefined ? 0 : this.state.data.length)
     return (
         <Table striped bordered hover variant="dark">
+          <link
+              rel = "stylesheet"
+              href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+              integrity = "sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+              crossOrigin = "anonymous"
+          />
           <thead>
           <tr>
             {/*TODO: can sort by ticker as well!*/}
             <th>Ticker</th>
-            <th onClick={e => this.onSort(e, "pe_ratio")}>PE Ratio</th>
-            <th onClick={e => this.onSort(e, "market_cap")}>Market Cap</th>
-            <th onClick={e => this.onSort(e, "week_percentage_change")}>1 Week</th>
-            <th onClick={e => this.onSort(e, "month_percentage_change")}>1 Month</th>
-            <th onClick={e => this.onSort(e, "year_percentage_change")}>1 Year</th>
+            <th onClick={e => this.onSort(e, "pe_ratio")}>PE Ratio<FaSort/></th>
+            <th onClick={e => this.onSort(e, "market_cap")}>Market Cap<FaSort/></th>
+            <th onClick={e => this.onSort(e, "week_percentage_change")}>1 Week<FaSort/></th>
+            <th onClick={e => this.onSort(e, "month_percentage_change")}>1 Month<FaSort/></th>
+            <th onClick={e => this.onSort(e, "year_percentage_change")}>1 Year<FaSort/></th>
           </tr>
           </thead>
           <tbody>

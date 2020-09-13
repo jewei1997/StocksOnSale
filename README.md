@@ -23,3 +23,4 @@ Has been succesfully deployed to: https://stocks-on-sale.herokuapp.com/
     - `git push heroku master`
     - remember heroku has its own postgres db, so you need to repopulate db
     - run `heroku run bash` to access heroku server
+    - NOTE: heroku automatically runs any migrations
