@@ -11,6 +11,6 @@ class Stock(models.Model):
 
     def __str__(self):
         return f"{self.ticker}, PE: {self.pe_ratio}, MC: {self.market_cap}, " \
-               f"Week % delta: {self.one_week_percentage_change}, " \
-               f"Month % delta: {self.one_month_percentage_change}, " \
-               f"Year % delta: {self.one_year_percentage_change}"
+               f"1 Week: {self.one_week_percentage_change}, " \
+               f"1 Month: {self.one_month_percentage_change}, " \
+               f"1 Year: {self.one_year_percentage_change}"

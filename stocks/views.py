@@ -11,17 +11,6 @@ import os
 logger = logging.getLogger(__name__)
 
 
-# class AllStats(APIView):
-#     """
-#     List all stats for all stocks sorted by PE ratio
-#     """
-#
-#     def get(self, request, format=None):
-#         stocks = Stock.objects.all()
-
-
-
-
 class PeRatios(APIView):
     """
     List all stocks with PE ratios sorted by PE ratio
