@@ -116,9 +116,9 @@ class App extends React.Component {
                   <td key={index}><a href={'https://finance.yahoo.com/quote/' + ticker}>{ticker}</a></td>
                   <td key={len + index}>{pe_ratio}</td>
                   <td key={2*len + index}>{market_cap}</td>
-                  <td key={3*len + index}>{week_percentage_change}</td>
-                  <td key={4*len + index}>{month_percentage_change}</td>
-                  <td key={5*len + index}>{year_percentage_change}</td>
+                  <td key={3*len + index} style={{ color: stock_data_ele["week_percentage_change"] > 0.0 ? 'green' : 'red'}}>{week_percentage_change}</td>
+                  <td key={4*len + index} style={{ color: stock_data_ele["month_percentage_change"] > 0.0 ? 'green' : 'red'}}>{month_percentage_change}</td>
+                  <td key={5*len + index} style={{ color: stock_data_ele["year_percentage_change"] > 0.0 ? 'green' : 'red'}}>{year_percentage_change}</td>
                 </tr>
             )
           })}
