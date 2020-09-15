@@ -24,3 +24,7 @@ Has been succesfully deployed to: https://stocks-on-sale.herokuapp.com/
     - remember heroku has its own postgres db, so you need to repopulate db
     - run `heroku run bash` to access heroku server
     - NOTE: heroku automatically runs any migrations
+    
+## Thoughts/Ideas
+ - instead of doing search, for MVP would make more sense to just have 3 buttons for S&P500, NASDAQ, and DOW and the product would still be useful
+ - all tickers: https://cloud.iexapis.com/stable/ref-data/symbols?token=pk_f73bd1961cb24068b2e354b45d1e5ac8
