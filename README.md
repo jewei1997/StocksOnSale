@@ -26,5 +26,13 @@ Has been succesfully deployed to: https://stocks-on-sale.herokuapp.com/
     - NOTE: heroku automatically runs any migrations
     
 ## Thoughts/Ideas
+ - scrape s&p500, nasdaq, and dow all from one website: https://www.slickcharts.com/sp500
  - instead of doing search, for MVP would make more sense to just have 3 buttons for S&P500, NASDAQ, and DOW and the product would still be useful
  - all tickers: https://cloud.iexapis.com/stable/ref-data/symbols?token=pk_f73bd1961cb24068b2e354b45d1e5ac8
+ - sectors that users can filter by: https://cloud.iexapis.com/stable/ref-data/sectors?token=pk_f73bd1961cb24068b2e354b45d1e5ac8
+   - can use https://cloud.iexapis.com/stable/stock/market/collection/sector?collectionName=Technology&token=pk_f73bd1961cb24068b2e354b45d1e5ac8
+     to see what stocks a sector has, but this endpoint actually isn't that good -- too much data
+ - can also filter by tags https://cloud.iexapis.com/stable/stock/market/collection/tag?collectionName=Airlines&token=pk_f73bd1961cb24068b2e354b45d1e5ac8
+   - also seems to have too much data
+ - let's try: lists (mostactive, gainers, losers, iexvolume, iexpercent)
+   - for example: https://cloud.iexapis.com/stable/stock/market/collection/list?collectionName=mostactive&token=pk_f73bd1961cb24068b2e354b45d1e5ac8
