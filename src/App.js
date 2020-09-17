@@ -3,6 +3,7 @@ import './App.css';
 import Table from 'react-bootstrap/Table';
 import {arrayToDict, numFormatter, percentFormatter, onSort} from "./Helpers";
 import { FaSort } from "react-icons/fa";
+import { Button } from 'antd';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -62,13 +63,18 @@ class App extends React.Component {
   }
 
   handleSort(event, sortKey) {
-    const data = onSort(event, sortKey, this.state.data)
+    const data = onSort(event, sortKey, this.state.data, this.state.is_ascending)
+    this.state.is_ascending = !this.state.is_ascending
     this.setState({data: data})
   }
 
   render() {
     const len = (this.state.data === undefined ? 0 : this.state.data.length)
     return (
+        <>
+        {/*<Button type="primary" style={{color: "black"}}size={"large"}>*/}
+        {/*  Primary*/}
+        {/*</Button>*/}
         <Table striped bordered hover variant="dark">
           <link
               rel = "stylesheet"
@@ -79,7 +85,7 @@ class App extends React.Component {
           <thead>
           <tr>
             {/*TODO: can sort by ticker as well!*/}
-            <th>Ticker</th>
+            <th onClick={e => this.handleSort(e, "ticker")}>Ticker<FaSort/></th>
             <th onClick={e => this.handleSort(e, "pe_ratio")}>PE Ratio<FaSort/></th>
             <th onClick={e => this.handleSort(e, "market_cap")}>Market Cap<FaSort/></th>
             <th onClick={e => this.handleSort(e, "week_percentage_change")}>1 Week<FaSort/></th>
@@ -109,6 +115,7 @@ class App extends React.Component {
           })}
           </tbody>
         </Table>
+        </>
     )
   }
 }

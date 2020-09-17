@@ -32,7 +32,7 @@ export function percentFormatter(num) {
   return (num * 100).toFixed(2) + '%'
 }
 
-export function onSort(event, sortKey, data) {
+export function onSort(event, sortKey, data, is_ascending) {
   data.sort((a,b) => {
     let result
     if (a[sortKey] === undefined) {
@@ -44,10 +44,9 @@ export function onSort(event, sortKey, data) {
     } else {
       result = a[sortKey].localeCompare(b[sortKey])
     }
-    if (this.state.is_ascending) { return result }
+    if (is_ascending) { return result }
     return -result
   })
-  this.state.is_ascending = !this.state.is_ascending
   return data
 }
 
