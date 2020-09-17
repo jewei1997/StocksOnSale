@@ -1,5 +1,4 @@
 #from stocks.models import Stock
-import requests
 
 
 def scrape_slick_charts_html(_file):
@@ -28,7 +27,6 @@ def main():
     print(len(dow))
     print(nasdaq)
     print(len(nasdaq))
-
 
 
 if __name__ == "__main__" or __name__ == "builtins":  # "builtins" is for running this in python prompt
