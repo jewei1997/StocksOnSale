@@ -2,6 +2,9 @@ from stocks.models import Stock
 from scripts.financial_data import FinancialDataClient
 
 """
+Use this script to update all the financial data (pe, market cap, one week percent
+change, etc.) for all tickers in the database!
+
 To run:
 python manage.py shell
 > exec(open("scripts/update_financial_data.py").read())
@@ -15,10 +18,15 @@ def main():
     stocks = Stock.objects.all()
     tickers = [stock.ticker for stock in stocks]
     n = len(tickers)
+    print("Retrieving PE ratios for all tickers")
     pe_ratios = client.get_pe_ratios(tickers)
+    print("Retrieving market caps for all tickers")
     market_caps = client.get_market_caps(tickers)
+    print("Retrieving one week percentage changes for all tickers")
     one_week_percentage_changes = client.get_price_percentage_change_from_today(tickers, 7)
+    print("Retrieving one month percentage changes for all tickers")
     one_month_percentage_changes = client.get_price_percentage_change_from_today(tickers, 30)
+    print("Retrieving one year percentage changes for all tickers")
     one_year_percentage_changes = client.get_price_percentage_change_from_today(tickers, 365)
     print(pe_ratios)
     print(market_caps)
