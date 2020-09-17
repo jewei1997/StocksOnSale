@@ -31,3 +31,23 @@ export function percentFormatter(num) {
   }
   return (num * 100).toFixed(2) + '%'
 }
+
+export function onSort(event, sortKey, data) {
+  data.sort((a,b) => {
+    let result
+    if (a[sortKey] === undefined) {
+      result = -1 // put b[sortKey] first
+    } else if (b[sortKey] === undefined) {
+      result = 1 // put a[sortKey] first
+    } else if (typeof(a[sortKey]) === "number" && typeof(b[sortKey]) === "number") {
+      result = a[sortKey] - b[sortKey]
+    } else {
+      result = a[sortKey].localeCompare(b[sortKey])
+    }
+    if (this.state.is_ascending) { return result }
+    return -result
+  })
+  this.state.is_ascending = !this.state.is_ascending
+  return data
+}
+

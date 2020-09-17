@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
 import Table from 'react-bootstrap/Table';
-import {arrayToDict, numFormatter, percentFormatter} from "./Helpers";
+import {arrayToDict, numFormatter, percentFormatter, onSort} from "./Helpers";
 import { FaSort } from "react-icons/fa";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -61,23 +61,8 @@ class App extends React.Component {
     this.setState({data: data})
   }
 
-  onSort(event, sortKey) {
-    const data = this.state.data
-    data.sort((a,b) => {
-      let result
-      if (a[sortKey] === undefined) {
-        result = -1 // put b[sortKey] first
-      } else if (b[sortKey] === undefined) {
-        result = 1 // put a[sortKey] first
-      } else if (typeof(a[sortKey]) === "number" && typeof(b[sortKey]) === "number") {
-        result = a[sortKey] - b[sortKey]
-      } else {
-        result = a[sortKey].localeCompare(b[sortKey])
-      }
-      if (this.state.is_ascending) { return result }
-      return -result
-    })
-    this.state.is_ascending = !this.state.is_ascending
+  handleSort(event, sortKey) {
+    const data = onSort(event, sortKey, this.state.data)
     this.setState({data: data})
   }
 
@@ -95,11 +80,11 @@ class App extends React.Component {
           <tr>
             {/*TODO: can sort by ticker as well!*/}
             <th>Ticker</th>
-            <th onClick={e => this.onSort(e, "pe_ratio")}>PE Ratio<FaSort/></th>
-            <th onClick={e => this.onSort(e, "market_cap")}>Market Cap<FaSort/></th>
-            <th onClick={e => this.onSort(e, "week_percentage_change")}>1 Week<FaSort/></th>
-            <th onClick={e => this.onSort(e, "month_percentage_change")}>1 Month<FaSort/></th>
-            <th onClick={e => this.onSort(e, "year_percentage_change")}>1 Year<FaSort/></th>
+            <th onClick={e => this.handleSort(e, "pe_ratio")}>PE Ratio<FaSort/></th>
+            <th onClick={e => this.handleSort(e, "market_cap")}>Market Cap<FaSort/></th>
+            <th onClick={e => this.handleSort(e, "week_percentage_change")}>1 Week<FaSort/></th>
+            <th onClick={e => this.handleSort(e, "month_percentage_change")}>1 Month<FaSort/></th>
+            <th onClick={e => this.handleSort(e, "year_percentage_change")}>1 Year<FaSort/></th>
           </tr>
           </thead>
           <tbody>
