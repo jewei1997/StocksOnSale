@@ -1,9 +1,10 @@
 import React from 'react';
 import './App.css';
 import Table from 'react-bootstrap/Table';
+import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup'
+import ToggleButton from 'react-bootstrap/ToggleButton'
 import {arrayToDict, numFormatter, percentFormatter, onSort} from "./Helpers";
 import { FaSort } from "react-icons/fa";
-import { Button } from 'antd';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 
@@ -19,7 +20,9 @@ class App extends React.Component {
       //        ]
       data: [],
       is_ascending: true,
+      whichIndex: [1],
     }
+
   }
 
   async componentDidMount() {
@@ -64,27 +67,38 @@ class App extends React.Component {
 
   handleSort(event, sortKey) {
     const data = onSort(event, sortKey, this.state.data, this.state.is_ascending)
-    this.state.is_ascending = !this.state.is_ascending
+    let is_ascending_reverse = !this.state.is_ascending
+    this.setState({is_ascending: is_ascending_reverse})
     this.setState({data: data})
+  }
+
+  setValue(val) {
+    this.setState({whichIndex: val})
   }
 
   render() {
     const len = (this.state.data === undefined ? 0 : this.state.data.length)
+
+    const handleChange = (val) => this.setValue(val);
+
+    console.log("in render, this.state.whichIndex = ", this.state.whichIndex)
+
     return (
-        <>
-        {/*<Button type="primary" style={{color: "black"}}size={"large"}>*/}
-        {/*  Primary*/}
-        {/*</Button>*/}
+      <>
+        <link
+            rel = "stylesheet"
+            href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+            integrity = "sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
+            crossOrigin = "anonymous"
+        />
+        <ToggleButtonGroup type="checkbox" value={this.state.whichIndex} onChange={handleChange}>
+          <ToggleButton value={1}>S&P 500</ToggleButton>
+          <ToggleButton value={2}>Dow</ToggleButton>
+          <ToggleButton value={3}>Nasdaq</ToggleButton>
+        </ToggleButtonGroup>
         <Table striped bordered hover variant="dark">
-          <link
-              rel = "stylesheet"
-              href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-              integrity = "sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-              crossOrigin = "anonymous"
-          />
           <thead>
           <tr>
-            {/*TODO: can sort by ticker as well!*/}
             <th onClick={e => this.handleSort(e, "ticker")}>Ticker<FaSort/></th>
             <th onClick={e => this.handleSort(e, "pe_ratio")}>PE Ratio<FaSort/></th>
             <th onClick={e => this.handleSort(e, "market_cap")}>Market Cap<FaSort/></th>
