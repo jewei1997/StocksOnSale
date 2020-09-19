@@ -69,6 +69,30 @@ class PercentageChange(APIView):
         return Response({"data": data})
 
 
+class Dow(APIView):
+
+    def get(self, request, format=None):
+        stocks = Stock.objects.all()
+        data = [{"ticker": stock.ticker, "dow": stock.is_in_dow} for stock in stocks]
+        return Response({"data": data})
+
+
+class Snp500(APIView):
+
+    def get(self, request, format=None):
+        stocks = Stock.objects.all()
+        data = [{"ticker": stock.ticker, "snp500": stock.is_in_sp500} for stock in stocks]
+        return Response({"data": data})
+
+
+class Nasdaq(APIView):
+
+    def get(self, request, format=None):
+        stocks = Stock.objects.all()
+        data = [{"ticker": stock.ticker, "nasdaq": stock.is_in_nasdaq} for stock in stocks]
+        return Response({"data": data})
+
+
 class FrontendAppView(View):
     """
     Serves the compiled frontend entry point (only works if you have run `yarn

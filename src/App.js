@@ -23,6 +23,7 @@ class App extends React.Component {
       whichIndex: [1],
     }
 
+    this.filterIndex = this.filterIndex.bind(this)
   }
 
   async componentDidMount() {
@@ -36,12 +37,24 @@ class App extends React.Component {
     const pc_month_json = await pc_month_resp.json()
     const pc_year_resp = await fetch(`stocks/percentage_change/365/`)
     const pc_year_json = await pc_year_resp.json()
+    const snp500_resp = await fetch(`stocks/snp500/`)
+    const snp500_json = await snp500_resp.json()
+    const dow_resp = await fetch(`stocks/dow/`)
+    const dow_json = await dow_resp.json()
+    const nasdaq_resp = await fetch(`stocks/nasdaq/`)
+    const nasdaq_json = await nasdaq_resp.json()
+
 
     const tickerToPe = arrayToDict(pe_json.data, "pe_ratio")
     const tickerToMarketCap = arrayToDict(mc_json.data, "market_cap")
     const tickerToWeekPercentageChange = arrayToDict(pc_week_json.data, "percentage_change")
     const tickerToMonthPercentageChange = arrayToDict(pc_month_json.data, "percentage_change")
     const tickerToYearPercentageChange = arrayToDict(pc_year_json.data, "percentage_change")
+    const tickerToSnp500 = arrayToDict(snp500_json.data, "snp500")
+    const tickerToDow = arrayToDict(dow_json.data, "dow")
+    const tickerToNasdaq = arrayToDict(nasdaq_json.data, "nasdaq")
+
+    console.log("in componentDidMount, tickerToSnp500 = ", tickerToSnp500)
 
 
     // build data so that it looks like:
@@ -57,6 +70,9 @@ class App extends React.Component {
                           "week_percentage_change": tickerToWeekPercentageChange[ticker],
                           "month_percentage_change": tickerToMonthPercentageChange[ticker],
                           "year_percentage_change": tickerToYearPercentageChange[ticker],
+                          "snp500": tickerToSnp500[ticker],
+                          "dow": tickerToDow[ticker],
+                          "nasdaq": tickerToNasdaq[ticker],
       }
       data.push(data_element)
     }
@@ -76,12 +92,25 @@ class App extends React.Component {
     this.setState({whichIndex: val})
   }
 
+  filterIndex(stock_data_ele) {
+    console.log("in filterIndex, ticker = ", stock_data_ele.ticker)
+    console.log("whichIndex = ", this.state.whichIndex)
+    console.log("this.state.whichIndex.includes(1) = ", this.state.whichIndex.includes(1))
+    console.log("stock_data_ele[snp500] = ", stock_data_ele["snp500"])
+    const isSnp500 = this.state.whichIndex.includes(1)
+    const isDow = this.state.whichIndex.includes(2)
+    const isNasdaq = this.state.whichIndex.includes(3)
+    if (isSnp500 && stock_data_ele["snp500"]) return true
+    else if (isDow && stock_data_ele["dow"]) return true
+    else if (isNasdaq && stock_data_ele["nasdaq"]) return true
+    console.log("ticker ", stock_data_ele.ticker, "returning false")
+    return false
+  }
+
   render() {
     const len = (this.state.data === undefined ? 0 : this.state.data.length)
 
     const handleChange = (val) => this.setValue(val);
-
-    console.log("in render, this.state.whichIndex = ", this.state.whichIndex)
 
     return (
       <>
@@ -108,8 +137,7 @@ class App extends React.Component {
           </tr>
           </thead>
           <tbody>
-          {Array.from({length: len}).map((_, index) => {
-            const stock_data_ele = this.state.data[index]
+          {this.state.data.filter(this.filterIndex).map((stock_data_ele, index) => {
             const ticker = stock_data_ele["ticker"]
             const pe_ratio = stock_data_ele["pe_ratio"]
             const market_cap = numFormatter(stock_data_ele["market_cap"])
