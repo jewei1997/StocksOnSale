@@ -13,6 +13,15 @@
   }
 }
 
+.btn-primary {
+  background-color: lightblue;
+  margin: 25px;
+}
+
+.btn-group {
+  left: 41%;
+}
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;

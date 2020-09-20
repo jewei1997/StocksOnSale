@@ -1,5 +1,4 @@
 import React from 'react';
-import './App.css';
 import Table from 'react-bootstrap/Table';
 import ToggleButtonGroup from 'react-bootstrap/ToggleButtonGroup'
 import ToggleButton from 'react-bootstrap/ToggleButton'
@@ -7,6 +6,8 @@ import {arrayToDict, numFormatter, percentFormatter, onSort} from "./Helpers";
 import { FaSort } from "react-icons/fa";
 
 import 'bootstrap/dist/css/bootstrap.min.css';
+// .App.css needs to after the bootstrap cdn to override it
+import './App.css';
 
 
 class App extends React.Component {
@@ -114,18 +115,14 @@ class App extends React.Component {
 
     return (
       <>
-        <link
-            rel = "stylesheet"
-            href = "https://maxcdn.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
-            integrity = "sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk"
-            crossOrigin = "anonymous"
-        />
-        <ToggleButtonGroup type="checkbox" value={this.state.whichIndex} onChange={handleChange}>
-          <ToggleButton value={1}>S&P 500</ToggleButton>
-          <ToggleButton value={2}>Dow</ToggleButton>
-          <ToggleButton value={3}>Nasdaq</ToggleButton>
-        </ToggleButtonGroup>
-        <Table striped bordered hover variant="dark">
+        <div>
+          <ToggleButtonGroup type="checkbox" value={this.state.whichIndex} onChange={handleChange}>
+            <ToggleButton value={1}>S&P 500</ToggleButton>
+            <ToggleButton value={2}>Dow</ToggleButton>
+            <ToggleButton value={3}>Nasdaq</ToggleButton>
+          </ToggleButtonGroup>
+        </div>
+        <Table striped bordered hover variant="light">
           <thead>
           <tr>
             <th onClick={e => this.handleSort(e, "ticker")}>Ticker<FaSort/></th>
