@@ -53,15 +53,18 @@ class PercentageChange(APIView):
                                  365: self.SupportedPeriod.YEAR}
         return daysToSupportedPeriod[days]
 
+    def check_float(self, num):
+        return num and num != float('nan')
+
     def get(self, request, days, format=None):
         stocks = Stock.objects.all()
         supported_period = self._convert_days_to_supported_period(days)
         if supported_period == self.SupportedPeriod.WEEK:
-            percentage_changes = [(stock.ticker, stock.one_week_percentage_change) for stock in stocks if stock.one_week_percentage_change]
+            percentage_changes = [(stock.ticker, stock.one_week_percentage_change) for stock in stocks if self.check_float(stock.one_week_percentage_change)]
         elif supported_period == self.SupportedPeriod.MONTH:
-            percentage_changes = [(stock.ticker, stock.one_month_percentage_change) for stock in stocks if stock.one_month_percentage_change]
+            percentage_changes = [(stock.ticker, stock.one_month_percentage_change) for stock in stocks if self.check_float(stock.one_month_percentage_change)]
         elif supported_period == self.SupportedPeriod.YEAR:
-            percentage_changes = [(stock.ticker, stock.one_year_percentage_change) for stock in stocks if stock.one_year_percentage_change]
+            percentage_changes = [(stock.ticker, stock.one_year_percentage_change) for stock in stocks if self.check_float(stock.one_year_percentage_change)]
         else:
             raise Exception(f"Unsupported period {supported_period}")
         sorted_by_percentage_change = sorted(percentage_changes, key=lambda ticker_pc_tuple: ticker_pc_tuple[1])
