@@ -55,8 +55,6 @@ class App extends React.Component {
     const tickerToDow = arrayToDict(dow_json.data, "dow")
     const tickerToNasdaq = arrayToDict(nasdaq_json.data, "nasdaq")
 
-    console.log("in componentDidMount, tickerToSnp500 = ", tickerToSnp500)
-
 
     // build data so that it looks like:
     // data = [{"ticker": t1, "pe_ratio": pe1, "market_cap": mc1, ...},
@@ -94,17 +92,12 @@ class App extends React.Component {
   }
 
   filterIndex(stock_data_ele) {
-    console.log("in filterIndex, ticker = ", stock_data_ele.ticker)
-    console.log("whichIndex = ", this.state.whichIndex)
-    console.log("this.state.whichIndex.includes(1) = ", this.state.whichIndex.includes(1))
-    console.log("stock_data_ele[snp500] = ", stock_data_ele["snp500"])
     const isSnp500 = this.state.whichIndex.includes(1)
     const isDow = this.state.whichIndex.includes(2)
     const isNasdaq = this.state.whichIndex.includes(3)
     if (isSnp500 && stock_data_ele["snp500"]) return true
     else if (isDow && stock_data_ele["dow"]) return true
     else if (isNasdaq && stock_data_ele["nasdaq"]) return true
-    console.log("ticker ", stock_data_ele.ticker, "returning false")
     return false
   }
 
