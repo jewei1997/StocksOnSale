@@ -108,6 +108,9 @@ class App extends React.Component {
 
     return (
       <>
+        <div className="page-header">
+          <h1>Stocks on Sale</h1>
+        </div>
         <div>
           <ToggleButtonGroup type="checkbox" value={this.state.whichIndex} onChange={handleChange}>
             <ToggleButton value={1}>S&P 500</ToggleButton>
